@@ -53,7 +53,7 @@ d3.csv('../data/medialist.csv', parse, function(err, data){
   //Scale Z (color)
   var scaleZ = d3.scaleOrdinal()
       .domain(scaleByMedia)
-      .range(["#ee751f", "#e62786", "#631A86", "#A39BA8", "#FF686B", "#fabb15", "#C80025","#95C623","#3d5b9b","#c9a48b"]);
+      .range(["#ee751f", "#e62786", "#8B60A0", "#A39BA8", "#FF686B", "#fabb15", "#C80025","#95C623","#3d5b9b","#c9a48b"]);
   
   console.log(scaleByMedia);
 
@@ -70,22 +70,26 @@ d3.csv('../data/medialist.csv', parse, function(err, data){
         .style('opacity',0.3)
         .on('mouseenter',function(d){
           console.log(d);
+          
           d3.select(this)
-            .style('opacity',1)
-            .style('stroke','#E6EFE9')
-            .style('stroke-width','0px');
-
-          plot.select('.bar')
-              .selectAll('text')
-              .data(data, function(data){return data.values})
-              .enter()
-              .append('text');
+            .style('opacity',1);
+ 
+          //filter
+          function filterText(data){
+            //console.log(data);
+            //console.log(d.values[0].media);
+            return data.media==d.values[0].media;
+          }
+          var filteredText = data.filter(filterText);
+          drawText(filteredText);
+          console.log(filteredText);
 
         })
         .on('mouseleave',function(d){
           d3.select(this)
-            .style('opacity',0.3)
-            .style('stroke-width','0px');
+            .style('opacity',0.3);
+          
+          //drawText().remove();
         })
           .selectAll('rect')
           .data(function(d){return d.values;})
@@ -96,8 +100,30 @@ d3.csv('../data/medialist.csv', parse, function(err, data){
           .attr('y',function(d) {return scaleY(d.day)})
           .attr('width',function(d) {return d.minutes*1.5+"px";})
           .attr('height', scaleY.bandwidth());
+  
+  //function draw text
+  function drawText(data) {
+     console.log(data);
+     
 
+     var textUpdate = plot.select('.bar')
+                      .selectAll('text')
+                      .data(data);
 
+     var textEnter = textUpdate.enter()
+         .append('text')
+         .attr('class','textMinutes');
+         
+     textUpdate.merge(textEnter)
+         .text(function(d){ if(d.minutes=='0'){return; }else{return d.minutes+' minutes';}})
+         .attr('x',function(d){return d.xValue*1.5+20;})
+         .attr('text-anchor','right')
+         .attr('y',function(d){return scaleY(d.day)-5;})
+         .style('fill','white');
+
+    textUpdate.exit().remove();
+
+   }
 
   //draw axisY
   plot.append('g')
