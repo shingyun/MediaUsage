@@ -38,12 +38,6 @@ d3.csv('../data/medialist.csv', parse, function(err, data){
   var scaleX = d3.scaleLinear()
       .domain([0,700])
       .range([0,w]);
-  
-  //draw axisX
-  plot.append('g')
-      .attr('class','axis axisX')
-      .attr('transform','translate(20,'+(h-10)+')')
-      .call(d3.axisBottom(scaleX));
 
   //nest data by media 
   var usageByMedia = d3.nest().key(function(data){ return data.media;})
@@ -64,32 +58,31 @@ d3.csv('../data/medialist.csv', parse, function(err, data){
       .data(usageByMedia)
       .enter()  
         .append('g')
-        .attr('transform','translate(20,0)')
+        .attr('transform','translate(75,0)')
         .attr('class',function(d){return d.key})
         .attr('fill',function(d) {return scaleZ(d.key)})
         .style('opacity',0.3)
         .on('mouseenter',function(d){
-          console.log(d);
+           console.log(d);
           
-          d3.select(this)
+           d3.select(this)
             .style('opacity',1);
  
-          //filter
-          function filterText(data){
-            //console.log(data);
+           //filter
+           function filterText(data){
             //console.log(d.values[0].media);
-            return data.media==d.values[0].media;
-          }
-          var filteredText = data.filter(filterText);
-          drawText(filteredText);
-          console.log(filteredText);
-
-        })
+             return data.media == d.values[0].media;
+           }
+           var filteredText = data.filter(filterText);
+           //console.log(filteredText[0].media);
+           drawText(filteredText);
+           drawLebel(filteredText.map(function(d){return d.media;}));
+           })
         .on('mouseleave',function(d){
-          d3.select(this)
-            .style('opacity',0.3);
+           d3.select(this)
+             .style('opacity',0.3);
           
-          //drawText().remove();
+           d3.select('.lebels').remove();
         })
           .selectAll('rect')
           .data(function(d){return d.values;})
@@ -97,17 +90,15 @@ d3.csv('../data/medialist.csv', parse, function(err, data){
           .append('rect')
           .attr('class',function(d){return d.media;})
           .attr('x',function(d) {return d.xValue*1.5;})
-          .attr('y',function(d) {return scaleY(d.day)})
+          .attr('y',function(d) {return scaleY(d.day);})
           .attr('width',function(d) {return d.minutes*1.5+"px";})
           .attr('height', scaleY.bandwidth());
   
   //function draw text
   function drawText(data) {
-     console.log(data);
-     
-
+    console.log(data);
      var textUpdate = plot.select('.bar')
-                      .selectAll('text')
+                      .selectAll('.textMinutes')
                       .data(data);
 
      var textEnter = textUpdate.enter()
@@ -115,28 +106,48 @@ d3.csv('../data/medialist.csv', parse, function(err, data){
          .attr('class','textMinutes');
          
      textUpdate.merge(textEnter)
-         .text(function(d){ if(d.minutes=='0'){return; }else{return d.minutes+' minutes';}})
-         .attr('x',function(d){return d.xValue*1.5+20;})
+         .text(function(d){if(d.minutes == '0'){return;} else {return d.minutes+' minutes';}})
+         .attr('x',function(d){return d.xValue*1.5+75;})
          .attr('text-anchor','right')
          .attr('y',function(d){return scaleY(d.day)-5;})
-         .style('fill','white');
+         .style('fill','gray');
 
     textUpdate.exit().remove();
+
+   }
+   
+  //function draw Lebel
+  function drawLebel(data) {
+    
+    console.log(data);
+
+    var lebelUpdate = plot.selectAll('.lebel')
+                      .data(data);
+
+    var lebelEnter = lebelUpdate.enter()
+        .append('text')
+        .attr('class','lebel');
+
+    lebelUpdate.merge(lebelEnter)
+        .text(function(d){ console.log(d); return d;})
+        .attr('x',75)
+        .attr('text-anchor','right')
+        .attr('y',h-525)
+        .style('fill','white');
+
+    lebelUpdate.exit().remove();
 
    }
 
   //draw axisY
   plot.append('g')
       .attr('class','axis axisY')
-      .attr('transform','translate(20,0)')
+      .attr('transform','translate(50,0)')
       .call(d3.axisLeft(scaleY));
-
-
 
 });
 
 
- 
 
 function parse(d) {
 

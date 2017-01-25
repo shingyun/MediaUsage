@@ -1,6 +1,7 @@
 h1 {
 	color: #EDF5FC;
 	margin-left: 20px;
+	font-family: "Times New Roman", Georgia, Serif;
 }
 
 body{
@@ -13,3 +14,19 @@ body{
     width:100%;
     min-height:600px;
 }
+
+
+.lebel {
+	font-size: 20px;
+	font-family: "Times New Roman", Georgia, Serif;
+}
+
+.axisY .tick text{
+	fill:gray;
+	font-size: 16px;
+	font-family: "Times New Roman", Georgia, Serif;
+}
+
+.axisY path{
+	stroke: 0px;
+} 
